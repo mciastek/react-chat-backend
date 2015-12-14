@@ -3,8 +3,9 @@ module.exports = function(socket) {
 
   socket.emit('init', { message: 'Hello World' });
 
-  socket.on('message', function(message) {
-    console.log(message);
+  socket.on('message:send', function(data) {
+    socket.broadcast.emit('message:receive', data);
+    console.log(data.text, data.author);
   });
 
   socket.on('disconnect', function() {
