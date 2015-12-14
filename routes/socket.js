@@ -3,6 +3,11 @@ module.exports = function(socket) {
 
   socket.emit('init', { message: 'Hello World' });
 
+  socket.on('user:joined', function(userName) {
+    socket.broadcast.emit('user:joined', userName);
+    console.log('user joined ' + userName);
+  });
+
   socket.on('message:send', function(data) {
     socket.broadcast.emit('message:receive', data);
     console.log(data.text, data.author);
