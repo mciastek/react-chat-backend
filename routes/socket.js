@@ -1,9 +1,12 @@
 module.exports = function(socket) {
   console.log('user connected!');
 
+  var currentUser = null;
+
   socket.emit('init', { message: 'Hello World' });
 
   socket.on('user:joined', function(userName) {
+    currentUser = userName;
     socket.broadcast.emit('user:joined', userName);
     console.log('user joined ' + userName);
   });
@@ -14,6 +17,7 @@ module.exports = function(socket) {
   });
 
   socket.on('disconnect', function() {
-    console.log('user disconnected!');
+    socket.broadcast.emit('user:left', currentUser);
+    console.log('user disconnected!', currentUser);
   });
 };
