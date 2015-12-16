@@ -1,23 +1,60 @@
-module.exports = function(socket) {
-  console.log('user connected!');
+var moment = require('moment');
+var dateFormat = 'HH:mm:ss';
 
+var isUserActive = false;
+var allActiveUsers = [];
+
+module.exports = function onConnect(socket) {
+  var date = moment().format(dateFormat);
   var currentUser = null;
 
-  socket.emit('init', { message: 'Hello World' });
+  console.log(date + ' | user connected!');
 
-  socket.on('user:joined', function(userName) {
+  socket.emit('init', { onlineUsers: allActiveUsers });
+
+  socket.on('user:joined', function onUserJoined(userName) {
+    var date = moment().format(dateFormat);
+
     currentUser = userName;
-    socket.broadcast.emit('user:joined', userName);
-    console.log('user joined ' + userName);
+    isUserActive = true;
+
+    if (allActiveUsers.indexOf(currentUser) === -1) {
+      allActiveUsers.push(currentUser);
+    }
+
+    socket.broadcast.emit('user:joined', {
+      userName: currentUser,
+      onlineUsers: allActiveUsers
+    });
+
+    console.log(date + ' | user "' + currentUser + '" joined!');
+
   });
 
-  socket.on('message:send', function(data) {
-    socket.broadcast.emit('message:receive', data);
-    console.log(data.text, data.author);
+  socket.on('message:send', function onMessageSend(message) {
+    var date = moment().format(dateFormat);
+    socket.broadcast.emit('message:receive', message);
+    console.log(date + ' | author: "' + message.author + '", text: "' + message.text + '".');
   });
 
-  socket.on('disconnect', function() {
-    socket.broadcast.emit('user:left', currentUser);
-    console.log('user disconnected!', currentUser);
+  socket.on('disconnect', function onDisconnect() {
+    var date = moment().format(dateFormat);
+
+    isUserActive = false;
+
+    setTimeout(function() {
+      if (!isUserActive) {
+        allActiveUsers.pop();
+
+        socket.broadcast.emit('user:left', {
+          userName: currentUser,
+          onlineUsers: allActiveUsers
+        });
+
+        console.log(date + ' | user "' + currentUser + '" left!');
+      }
+    }, 2000);
+
+    console.log(date + ' | user disconnected!');
   });
 };
