@@ -34,6 +34,7 @@ module.exports = function onConnect(socket) {
   socket.on('message:send', function onMessageSend(message) {
     var date = moment().format(dateFormat);
     socket.broadcast.emit('message:receive', message);
+
     console.log(date + ' | author: "' + message.author + '", text: "' + message.text + '".');
   });
 
@@ -44,7 +45,9 @@ module.exports = function onConnect(socket) {
 
     setTimeout(function() {
       if (!isUserActive) {
-        allActiveUsers.pop();
+        allActiveUsers = allActiveUsers.filter(function(userName) {
+          return userName !== currentUser;
+        });
 
         socket.broadcast.emit('user:left', {
           userName: currentUser,

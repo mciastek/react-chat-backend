@@ -3,7 +3,6 @@ var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
-// var bodyParser = require('body-parser');
 var socket_io = require('socket.io');
 
 var routes = require('./routes/index');
@@ -19,7 +18,6 @@ app.locals.ENV_DEVELOPMENT = env == 'development';
 
 app.io = io;
 
-// app.use(favicon(__dirname + '/public/img/favicon.ico'));
 app.use(logger('dev'));
 
 app.use(cookieParser());
